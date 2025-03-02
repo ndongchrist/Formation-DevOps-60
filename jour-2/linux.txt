@@ -1,0 +1,94 @@
+20 commandes Linux essentielles pour les débutants en DevOps
+
+
+1. Gestion des fichiers & répertoires
+    ls
+    Lister le contenu d'un répertoire.
+    Exemple : ls -l (détails), ls -a (fichiers cachés).
+
+    cd
+    Changer de répertoire.
+    Exemple : cd /chemin/vers/dossier.
+
+    pwd
+    Afficher le chemin absolu du répertoire courant.
+
+    mkdir
+    Créer un répertoire.
+    Exemple : mkdir nouveau_dossier.
+
+    touch
+    Créer un fichier vide ou mettre à jour sa date de modification.
+    Exemple : touch fichier.txt.
+
+    cp
+    Copier des fichiers/dossiers.
+    Exemple : cp source.txt destination/.
+
+    mv
+    Déplacer ou renommer un fichier/dossier.
+    Exemple : mv ancien_nom.txt nouveau_nom.txt.
+
+    rm
+    Supprimer des fichiers.
+    Exemple : rm -r dossier/ (supprimer un dossier récursivement).
+
+2. Visualisation & manipulation de fichiers
+    cat
+    Afficher le contenu d'un fichier.
+    Exemple : cat fichier.log.
+
+    grep
+    Rechercher un motif dans un fichier ou un flux.
+    Exemple : grep "erreur" fichier.log.
+
+    head / tail
+    Afficher les premières (head) ou dernières (tail) lignes d'un fichier.
+    Exemple : tail -f fichier.log (suivre les logs en temps réel).
+
+    less
+    Parcourir un fichier page par page (plus puissant que more).
+    Exemple : less fichier.conf.
+
+3. Permissions & propriété
+    chmod
+    Modifier les permissions d'un fichier/dossier.
+    Exemple : chmod 755 script.sh.
+
+    chown
+    Changer le propriétaire d'un fichier/dossier.
+    Exemple : chown utilisateur:groupe fichier.txt.
+
+4. Gestion des processus
+    ps
+    Lister les processus en cours.
+    Exemple : ps aux.
+
+    kill
+    Terminer un processus.
+    Exemple : kill -9 PID.
+
+    top / htop
+    Surveiller les ressources système (CPU, mémoire, etc.).
+
+5. Réseau & DevOps
+curl / wget
+    Télécharger des fichiers ou interagir avec des APIs.
+    Exemple : curl -O http://example.com/fichier.
+
+    ssh
+    Se connecter à une machine distante.
+    Exemple : ssh utilisateur@serveur.
+
+    apt-get / yum / apt
+    Gérer les paquets logiciels (Debian/Ubuntu vs Red Hat/CentOS).
+    Exemple : apt-get install nginx.
+
+Bonus
+    df : Espace disque disponible.
+
+    du : Taille d'un dossier.
+
+    scp : Copie sécurisée de fichiers via SSH.
+
+    systemctl : Gérer les services (démarrer/arrêter).
