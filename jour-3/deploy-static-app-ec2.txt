@@ -1,0 +1,71 @@
+Deploying a Static Website on AWS EC2 Using Nginx
+
+Prerequisites
+    An AWS EC2 instance running Ubuntu (or any Linux distribution).
+
+    A .pem file for SSH access to the EC2 instance.
+
+    Your static website files (zipped or unzipped).
+
+Step 1: Connect to Your EC2 Instance
+    Open your terminal.
+
+    Navigate to the directory where your .pem file is located.
+
+    Use the following command to connect to your EC2 instance:
+
+    # command    
+        ssh -i your-key.pem ubuntu@your-ec2-public-ip
+        Replace your-key.pem with the name of your .pem file and your-ec2-public-ip with the public IP address of your EC2 instance.
+
+Step 2: Update and Install Nginx
+
+    Update the package list:
+    # command    
+        sudo amazon-install-extras nginx
+
+        Start and enable Nginx:
+    # command    
+        sudo systemctl start nginx
+        sudo systemctl enable nginx
+
+    Verify Nginx is running:
+    # command    
+        sudo systemctl status nginx
+        
+Step 3: Upload Your Website Files Using SCP
+    Open a new terminal window on your local machine.
+
+    Navigate to the directory containing your website files.
+
+    Use the scp command to upload your files to the EC2 instance:
+    # command    
+        scp -i your-key.pem -r your-website-folder ubuntu@your-ec2-public-ip:/home/ubuntu/
+        Replace your-website-folder with the name of your folder or zip file.
+
+Step 4: Unzip Your Files (If Necessary)
+    SSH into your EC2 instance (if not already connected):
+    # command    
+        ssh -i your-key.pem ubuntu@your-ec2-public-ip
+
+        Navigate to the directory where you uploaded your files:
+    # command    
+        cd /home/ubuntu/
+
+        If your files are zipped, unzip them:
+    # command    
+        unzip your-website-folder.zip
+        Replace your-website-folder.zip with the name of your zip file.
+
+Step 5: Configure Nginx to Serve Your Website
+    Move your website files to the Nginx web root directory:
+    # command    
+        sudo mv your-website-folder /usr/share/nginx/html/ 
+        sudo nginx -t   
+        sudo systemctl restart nginx
+
+
+Step 6: Access Your Website
+    Open a web browser and navigate to your EC2 instance's public IP address:
+    http://your-ec2-public-ip
+    Your static website should now be live now!
