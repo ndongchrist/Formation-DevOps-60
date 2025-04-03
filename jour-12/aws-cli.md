@@ -140,7 +140,10 @@ Voici un script Bash utilisant l’AWS CLI pour lister les instances EC2 en cour
 #!/bin/bash
 echo "Liste des instances EC2 en cours d’exécution :"
 aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" --query 'Reservations[*].Instances[*].[InstanceId,PublicIpAddress]' --output text > instances_running.txt
-cat instances_running.txt
+aws ec2 describe-instances >> instances_running.txt
+aws s3 ls >> instances_running.txt
+aws iam list-users >> instances_running.txt
+cat instances_running.txt >> instances_running.txt
 ```
 
 ---
