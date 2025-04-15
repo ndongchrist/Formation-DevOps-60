@@ -12,7 +12,7 @@
 ### Cours : Introduction à Terraform (Jour 15 - Formation DevOps 60 jours)
 
 #### 1. Introduction au cours
-Bienvenue dans le 15e jour de notre formation DevOps de 60 jours ! Aujourd’hui, nous abordons **Terraform**, un outil incontournable pour gérer les infrastructures de manière automatisée. Ce cours est une introduction théorique qui couvre :  
+ **Terraform**, un outil incontournable pour gérer les infrastructures de manière automatisée. Ce cours est une introduction théorique qui couvre :  
 - Ce qu’est Terraform et son rôle dans le DevOps.  
 - Son histoire et son développement par HashiCorp.  
 - Son fonctionnement, les providers, et les commandes de base.  
