@@ -1,7 +1,3 @@
-Voici un cours approfondi et pratique sur Terraform pour le **16e jour** de ta formation DevOps de 60 jours. Ce cours est conçu comme une ressource pédagogique détaillée, axée sur la pratique, pour ta vidéo YouTube. Il couvre l’installation de Terraform sur une instance EC2, la configuration de l’AWS CLI, une explication détaillée de la syntaxe HCL, la création d’un fichier `.tf` pour provisionner une instance EC2 sans interface AWS, et l’utilisation des commandes Terraform (`init`, `plan`, `fmt`, `validate`, `apply`, `show`, `destroy`). J’explique aussi les concepts de **state**, les fichiers **main.tf**, **variables.tf**, **outputs.tf**, leur rôle, et comment les développeurs collaborent sur des projets Terraform sans conflits de state. Le tout est structuré, clair, et adapté pour des apprenants DevOps, avec des liens et des exemples concrets.
-
----
-
 ### Table des matières
 1. Introduction au cours (Jour 16 - Formation DevOps)
 2. Préparer l’environnement : Lancer une instance EC2
