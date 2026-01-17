@@ -1,0 +1,52 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+meta
+  name: mon-application-ingress
+  annotations:
+    # Redirige automatiquement HTTP → HTTPS
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    
+    # Réécriture : si on utilise des chemins comme /api/v1, on peut les simplifier
+    # Ici, on suppose qu'on ne fait pas de réécriture complexe, donc on le laisse en commentaire
+    nginx.ingress.kubernetes.io/rewrite-target: /
+
+    # (Optionnel) Protection basique par mot de passe
+    nginx.ingress.kubernetes.io/auth-type: basic
+    nginx.ingress.kubernetes.io/auth-secret: basic-auth
+    nginx.ingress.kubernetes.io/auth-realm: "Accès restreint"
+
+spec:
+  # Section TLS : active HTTPS pour le domaine
+  tls:
+    - hosts:
+        - monapp.local
+      secretName: monapp-tls-secret   # Doit exister dans le même namespace
+
+  # Règles de routage
+  rules:
+    - host: monapp.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-svc
+                port:
+                  number: 80
+
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: backend-svc
+                port:
+                  number: 80
+
+          - path: /admin
+            pathType: Prefix
+            backend:
+              service:
+                name: admin-svc
+                port:
+                  number: 80
