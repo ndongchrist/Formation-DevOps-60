@@ -1,0 +1,3 @@
+FROM nginx:alpine
+COPY backend.html /usr/share/nginx/html/backend-api/index.html
+EXPOSE 80

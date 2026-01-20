@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MyApp - Frontend Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    :root {
+      --primary-color: #3b82f6;
+      --primary-light: #60a5fa;
+      --primary-dark: #1d4ed8;
+      --secondary-color: #8b5cf6;
+      --accent-color: #06b6d4;
+      --light-bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text-dark: #1e293b;
+      --text-light: #64748b;
+      --success-color: #10b981;
+      --warning-color: #f59e0b;
+      --border-color: #e2e8f0;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.1);
+    }
+
+    body {
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+      color: var(--text-dark);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 0;
+      margin-bottom: 40px;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .logo-icon {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 24px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .logo-text h1 {
+      font-size: 28px;
+      font-weight: 800;
+      background: linear-gradient(to right, var(--primary-dark), var(--secondary-color));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      line-height: 1.2;
+    }
+
+    .logo-text p {
+      font-size: 14px;
+      color: var(--text-light);
+    }
+
+    .user-menu {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .notification-btn {
+      position: relative;
+      background: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-dark);
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .notification-btn:hover {
+      background: var(--primary-light);
+      color: white;
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      background: #ef4444;
+      color: white;
+      font-size: 10px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .user-avatar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: white;
+      padding: 8px 16px;
+      border-radius: 50px;
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .user-avatar:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .avatar-img {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+    }
+
+    /* Hero Section */
+    .hero {
+      background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+      color: white;
+      border-radius: 20px;
+      padding: 50px 40px;
+      margin-bottom: 40px;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 300px;
+      height: 300px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      transform: translate(100px, -100px);
+    }
+
+    .hero-content {
+      max-width: 600px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero h2 {
+      font-size: 36px;
+      margin-bottom: 15px;
+      font-weight: 700;
+    }
+
+    .hero p {
+      font-size: 18px;
+      margin-bottom: 30px;
+      opacity: 0.9;
+    }
+
+    .cta-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: white;
+      color: var(--primary-dark);
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      box-shadow: var(--shadow-md);
+      transition: all 0.3s ease;
+    }
+
+    .cta-button:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    /* Dashboard Grid */
+    .dashboard-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 25px;
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 25px;
+      margin-bottom: 50px;
+    }
+
+    .dashboard-card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 25px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.3s ease;
+      border: 1px solid var(--border-color);
+    }
+
+    .dashboard-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .card-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      color: white;
+    }
+
+    .card-icon.users {
+      background: linear-gradient(135deg, var(--success-color), #34d399);
+    }
+
+    .card-icon.analytics {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    }
+
+    .card-icon.performance {
+      background: linear-gradient(135deg, var(--warning-color), #fbbf24);
+    }
+
+    .card-icon.api {
+      background: linear-gradient(135deg, var(--secondary-color), #a78bfa);
+    }
+
+    .card-stat {
+      font-size: 32px;
+      font-weight: 800;
+      margin-bottom: 5px;
+      color: var(--text-dark);
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 5px;
+    }
+
+    .card-desc {
+      font-size: 14px;
+      color: var(--text-light);
+      margin-bottom: 20px;
+    }
+
+    .card-trend {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .trend-up {
+      color: var(--success-color);
+    }
+
+    .trend-down {
+      color: #ef4444;
+    }
+
+    /* Feature Showcase */
+    .features-section {
+      margin-bottom: 50px;
+    }
+
+    .section-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 25px;
+      color: var(--text-dark);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .feature-item {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.3s ease;
+    }
+
+    .feature-item:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .feature-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 15px;
+      font-size: 24px;
+      color: white;
+    }
+
+    .feature-1 .feature-icon {
+      background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+    }
+
+    .feature-2 .feature-icon {
+      background: linear-gradient(135deg, #06b6d4, #22d3ee);
+    }
+
+    .feature-3 .feature-icon {
+      background: linear-gradient(135deg, #10b981, #34d399);
+    }
+
+    .feature-4 .feature-icon {
+      background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    }
+
+    .feature-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--text-dark);
+    }
+
+    .feature-desc {
+      font-size: 14px;
+      color: var(--text-light);
+    }
+
+    /* Footer */
+    footer {
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      margin-top: 40px;
+      box-shadow: var(--shadow-sm);
+      text-align: center;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: var(--text-light);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    .footer-links a:hover {
+      color: var(--primary-color);
+    }
+
+    .footer-info {
+      color: var(--text-light);
+      font-size: 14px;
+      margin-top: 20px;
+    }
+
+    .environment-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(to right, #10b981, #34d399);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 15px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+      }
+      
+      .hero h2 {
+        font-size: 28px;
+      }
+      
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="logo-area">
+        <div class="logo-icon">
+          <i class="fas fa-home"></i>
+        </div>
+        <div class="logo-text">
+          <h1>MyApp Dashboard</h1>
+          <p>Frontend Interface & User Portal</p>
+        </div>
+      </div>
+      
+      <div class="user-menu">
+        <div class="notification-btn">
+          <i class="fas fa-bell"></i>
+          <span class="notification-badge">3</span>
+        </div>
+        
+        <div class="user-avatar">
+          <div class="avatar-img">JS</div>
+          <div>
+            <div style="font-weight: 600;">John Smith</div>
+            <div style="font-size: 12px; color: var(--text-light);">Administrator</div>
+          </div>
+          <i class="fas fa-chevron-down" style="color: var(--text-light);"></i>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-content">
+        <h2>Welcome to MyApp Frontend</h2>
+        <p>This is the main user interface of MyApp, designed to deliver a seamless experience with real-time data, analytics, and powerful tools for managing your workflow.</p>
+        <a href="#" class="cta-button">
+          <i class="fas fa-rocket"></i> Get Started
+        </a>
+      </div>
+    </section>
+
+    <!-- Dashboard Stats -->
+    <h2 class="dashboard-title">
+      <i class="fas fa-tachometer-alt"></i> Dashboard Overview
+    </h2>
+    
+    <div class="dashboard-grid">
+      <div class="dashboard-card">
+        <div class="card-header">
+          <div class="card-icon users">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="card-trend trend-up">
+            <i class="fas fa-arrow-up"></i> 12.5%
+          </div>
+        </div>
+        <div class="card-stat">2,847</div>
+        <div class="card-title">Active Users</div>
+        <div class="card-desc">Currently active in the platform</div>
+      </div>
+      
+      <div class="dashboard-card">
+        <div class="card-header">
+          <div class="card-icon analytics">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <div class="card-trend trend-up">
+            <i class="fas fa-arrow-up"></i> 8.3%
+          </div>
+        </div>
+        <div class="card-stat">142.5k</div>
+        <div class="card-title">Monthly Visits</div>
+        <div class="card-desc">Total visits this month</div>
+      </div>
+      
+      <div class="dashboard-card">
+        <div class="card-header">
+          <div class="card-icon performance">
+            <i class="fas fa-bolt"></i>
+          </div>
+          <div class="card-trend trend-up">
+            <i class="fas fa-arrow-up"></i> 5.2%
+          </div>
+        </div>
+        <div class="card-stat">98.7%</div>
+        <div class="card-title">System Performance</div>
+        <div class="card-desc">Average uptime & responsiveness</div>
+      </div>
+      
+      <div class="dashboard-card">
+        <div class="card-header">
+          <div class="card-icon api">
+            <i class="fas fa-server"></i>
+          </div>
+          <div class="card-trend trend-down">
+            <i class="fas fa-arrow-down"></i> 1.2%
+          </div>
+        </div>
+        <div class="card-stat">327ms</div>
+        <div class="card-title">API Response Time</div>
+        <div class="card-desc">Average backend response time</div>
+      </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="features-section">
+      <h2 class="section-title">Key Features</h2>
+      <div class="features-grid">
+        <div class="feature-item feature-1">
+          <div class="feature-icon">
+            <i class="fas fa-shield-alt"></i>
+          </div>
+          <div class="feature-title">Secure & Reliable</div>
+          <div class="feature-desc">Enterprise-grade security with 99.9% uptime guarantee</div>
+        </div>
+        
+        <div class="feature-item feature-2">
+          <div class="feature-icon">
+            <i class="fas fa-sync-alt"></i>
+          </div>
+          <div class="feature-title">Real-time Updates</div>
+          <div class="feature-desc">Live data synchronization across all devices</div>
+        </div>
+        
+        <div class="feature-item feature-3">
+          <div class="feature-icon">
+            <i class="fas fa-mobile-alt"></i>
+          </div>
+          <div class="feature-title">Fully Responsive</div>
+          <div class="feature-desc">Optimized for all screen sizes and devices</div>
+        </div>
+        
+        <div class="feature-item feature-4">
+          <div class="feature-icon">
+            <i class="fas fa-cogs"></i>
+          </div>
+          <div class="feature-title">Easy Integration</div>
+          <div class="feature-desc">Seamless API integration with third-party services</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <div class="footer-links">
+        <a href="#"><i class="fas fa-info-circle"></i> About</a>
+        <a href="#"><i class="fas fa-file-alt"></i> Documentation</a>
+        <a href="#"><i class="fas fa-headset"></i> Support</a>
+        <a href="#"><i class="fas fa-cog"></i> Settings</a>
+        <a href="#"><i class="fas fa-sign-out-alt"></i> Logout</a>
+      </div>
+      
+      <div class="environment-badge">
+        <i class="fas fa-check-circle"></i>
+        Connected to <strong>Frontend</strong> Server
+      </div>
+      
+      <div class="footer-info">
+        <p>MyApp Frontend Dashboard &copy; 2023. All rights reserved.</p>
+        <p>Version 2.4.1 | Last updated: October 2023</p>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Interactive elements
+    document.querySelectorAll('.dashboard-card').forEach(card => {
+      card.addEventListener('click', function() {
+        // Remove active class from all cards
+        document.querySelectorAll('.dashboard-card').forEach(c => {
+          c.style.borderColor = 'var(--border-color)';
+        });
+        
+        // Add active state to clicked card
+        this.style.borderColor = 'var(--primary-color)';
+      });
+    });
+
+    // Notification button interaction
+    document.querySelector('.notification-btn').addEventListener('click', function() {
+      const badge = this.querySelector('.notification-badge');
+      if (badge.textContent !== '0') {
+        badge.textContent = '0';
+        badge.style.backgroundColor = 'var(--text-light)';
+        
+        // Show a temporary message
+        const originalIcon = this.innerHTML;
+        this.innerHTML = '<i class="fas fa-check"></i>';
+        
+        setTimeout(() => {
+          this.innerHTML = originalIcon;
+        }, 1500);
+      }
+    });
+
+    // Update stats every 10 seconds (simulated)
+    function updateStats() {
+      const stats = document.querySelectorAll('.card-stat');
+      
+      stats.forEach(stat => {
+        const currentValue = parseInt(stat.textContent.replace(/[^0-9]/g, ''));
+        const change = Math.floor(Math.random() * 21) - 10; // Random change between -10 and +10
+        const newValue = Math.max(0, currentValue + change);
+        
+        // Format number with commas
+        const formattedValue = newValue.toLocaleString();
+        
+        // Update the stat with a subtle animation
+        stat.style.transform = 'scale(1.1)';
+        setTimeout(() => {
+          stat.textContent = formattedValue;
+          stat.style.transform = 'scale(1)';
+        }, 300);
+      });
+    }
+
+    // Update stats every 10 seconds
+    setInterval(updateStats, 10000);
+  </script>
+</body>
+</html>
