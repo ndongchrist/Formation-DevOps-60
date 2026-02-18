@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  # La clé à gauche, la valeur à droite
+  APP_ENV: "production"
+  API_URL: "https://api.monsite.com"
+  LOG_LEVEL: "info"
