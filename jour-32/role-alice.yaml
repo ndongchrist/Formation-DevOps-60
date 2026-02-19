@@ -1,0 +1,26 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: webapp-developer
+  namespace: staging
+
+rules:
+# Gérer les Pods de l'app
+- apiGroups: [""]
+  resources: ["pods", "pods/log", "pods/exec"]
+  verbs: ["get", "list", "watch", "create", "delete"]
+
+# Gérer les Deployments
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list", "watch", "create", "update", "patch"]
+
+# Lire les ConfigMaps (pas les Secrets !)
+- apiGroups: [""]
+  resources: ["configmaps"]
+  verbs: ["get", "list", "watch"]
+
+# Lire les Services
+- apiGroups: [""]
+  resources: ["services"]
+  verbs: ["get", "list", "watch"]
