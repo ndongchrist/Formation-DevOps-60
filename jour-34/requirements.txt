@@ -1,0 +1,3 @@
+flask
+prometheus_client
+Werkzeug==2.3.7

@@ -1,0 +1,18 @@
+# alert-demo.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: demo-app-alerts
+  namespace: monitoring
+spec:
+  groups:
+  - name: demo-app
+    rules:
+    - alert: DemoAppHighLatency
+      expr: histogram_quantile(0.95, rate(app_request_duration_seconds_bucket[5m])) > 1
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Latence élevée sur demo-app"
+        description: "P95 latency > 1s sur demo-app (valeur: {{ $value }}s)"
