@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: flask-app
-          image: ndongchrist/flask-gitops:v1   # <-- change this tag to v2 or v3 to trigger ArgoCD rollout
+          image: ndongchrist/flask-gitops:v2   # <-- change this tag to v2 or v3 to trigger ArgoCD rollout
           ports:
             - containerPort: 5000
           resources:
