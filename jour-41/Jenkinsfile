@@ -1,0 +1,22 @@
+
+// declarative
+
+pipeline {  // debut pipeline
+
+    agent any  // preciser l'executer
+
+    stages {
+
+        stage("Build") {
+            steps {
+                sh "Build"
+            }
+        }
+    }
+}
+
+// Scripte
+
+node {
+
+}
