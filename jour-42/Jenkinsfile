@@ -1,0 +1,230 @@
+pipeline {
+
+    // ============================================
+    // 1. AGENT - where the pipeline runs
+    // ============================================
+    agent any
+    // Alternatives:
+    // agent { label 'linux-docker' }
+    // agent { docker { image 'node:20-alpine' } }
+    // agent none   // then define agent per-stage
+
+    // ============================================
+    // 2. TOOLS - auto-provision tools (needs Jenkins "Tool" config)
+    // ============================================
+    tools {
+        maven 'Maven-3.9'
+        jdk 'JDK-17'
+        python "3.12" // python main.py
+    }
+
+    // ============================================
+    // 3. OPTIONS - pipeline-level behavior settings
+    // ============================================
+    options {
+        timeout(time: 30, unit: 'MINUTES')
+        timestamps()
+        disableConcurrentBuilds()
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        retry(1)
+    }
+
+    // ============================================
+    // 4. TRIGGERS - when the pipeline runs automatically
+    // ============================================
+    triggers {
+        cron('H 2 * * *')        // nightly build
+        // pollSCM('H/5 * * * *') // poll git every 5 min
+    }
+
+    // ============================================
+    // 5. PARAMETERS - inputs a human (or another job) supplies
+    // ============================================
+    parameters {
+        string(name: 'BRANCH_NAME', defaultValue: 'main', description: 'Branch to build')
+        choice(name: 'ENVIRONMENT', choices: ['dev', 'staging', 'prod'], description: 'Deploy target')
+        booleanParam(name: 'RUN_TESTS', defaultValue: true, description: 'Run test suite?')
+    }
+
+    // ============================================
+    // 6. ENVIRONMENT - variables available to ALL stages
+    // ============================================
+    environment {
+        // Plain variable
+        APP_NAME = 'demo-app'
+
+        // Built-in Jenkins variables (no need to define these — shown for teaching)
+        // env.BUILD_NUMBER, env.WORKSPACE, env.JOB_NAME, env.BUILD_URL, env.GIT_COMMIT
+
+        // Derived/computed variable
+        IMAGE_TAG = "${APP_NAME}:${env.BUILD_NUMBER}"
+
+        // ---- SECRETS: pulling a credential into an env var ----
+        // This exposes DOCKERHUB_USER / DOCKERHUB_PASS as env vars for the whole pipeline.
+        // Credential ID 'dockerhub-creds' must exist in Jenkins > Manage Credentials.
+        DOCKERHUB_CREDS = credentials('my-github-pass-token') // gives DOCKERHUB_CREDS_USR / DOCKERHUB_CREDS_PSW
+    }
+
+    stages {
+
+        // ============================================
+        // 7. BASIC STAGE + STEPS
+        // ============================================
+        stage('Checkout') {
+            steps {
+                echo "Building ${env.APP_NAME} on branch ${params.BRANCH_NAME}"
+                checkout scm
+            }
+        }
+
+        // ============================================
+        // 8. STAGE-LEVEL ENVIRONMENT (overrides/extends global)
+        // ============================================
+        stage('Build') {
+            environment {
+                MVN_OPTS = '-Xmx1024m'
+            }
+            steps {
+                sh 'mvn clean package -DskipTests'
+            }
+        }
+
+        // ============================================
+        // 9. WHEN - conditional stage execution
+        // ============================================
+        stage('Test') {
+            when {
+                expression { return params.RUN_TESTS == true }
+            }
+            steps {
+                sh 'mvn test'
+            }
+            post {
+                always {
+                    junit 'target/surefire-reports/*.xml'
+                }
+            }
+        }
+
+        // ============================================
+        // 10. withCredentials - scoped secret usage (safer than env-wide)
+        // ============================================
+        stage('Docker Login & Push') {
+            steps {
+                // Username/Password credential type
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh '''
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                        docker build -t $IMAGE_TAG .
+                        docker push $IMAGE_TAG
+                    '''
+                }
+
+                // Secret text credential type
+                withCredentials([string(
+                    credentialsId: 'slack-webhook-token',
+                    variable: 'SLACK_TOKEN'
+                )]) {
+                    sh 'echo "Using token to notify Slack (masked in logs): $SLACK_TOKEN"'
+                }
+
+                // SSH private key credential type
+                withCredentials([sshUserPrivateKey(
+                    credentialsId: 'deploy-ssh-key',
+                    keyFileVariable: 'SSH_KEY',
+                    usernameVariable: 'SSH_USER'
+                )]) {
+                    sh 'ssh -i $SSH_KEY $SSH_USER@server.example.com "echo connected"'
+                }
+
+                // Secret file credential type (e.g. kubeconfig, .env file)
+                withCredentials([file(
+                    credentialsId: 'kubeconfig-file',
+                    variable: 'KUBECONFIG_FILE'
+                )]) {
+                    sh 'KUBECONFIG=$KUBECONFIG_FILE kubectl get pods'
+                }
+            }
+        }
+
+        // ============================================
+        // 11. SCRIPT BLOCK - drop into Groovy for logic
+        // ============================================
+        stage('Dynamic Logic') {
+            steps {
+                script {
+                    def deployEnv = params.ENVIRONMENT
+                    if (deployEnv == 'prod') {
+                        echo "Production deploy — extra checks apply"
+                    } else {
+                        echo "Non-prod deploy to ${deployEnv}"
+                    }
+
+                    // reusable function defined at bottom of file
+                    notifyTeam("Build ${env.BUILD_NUMBER} reached deploy stage")
+                }
+            }
+        }
+
+        // ============================================
+        // 12. PARALLEL STAGES
+        // ============================================
+        stage('Parallel Checks') {
+            parallel {
+                stage('Lint') {
+                    steps { sh 'echo running lint...' }
+                }
+                stage('Security Scan') {
+                    steps { sh 'echo running security scan...' }
+                }
+            }
+        }
+
+        // ============================================
+        // 13. INPUT - manual approval gate
+        // ============================================
+        stage('Approve Prod Deploy') {
+            when { expression { params.ENVIRONMENT == 'prod' } }
+            steps {
+                input message: "Deploy ${IMAGE_TAG} to PRODUCTION?", ok: 'Deploy'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo "Deploying ${IMAGE_TAG} to ${params.ENVIRONMENT}"
+            }
+        }
+    }
+
+    // ============================================
+    // 14. POST - runs after all stages, based on outcome
+    // ============================================
+    post {
+        always {
+            echo 'Cleaning workspace...'
+            cleanWs()
+        }
+        success {
+            echo 'Pipeline succeeded!'
+        }
+        failure {
+            echo 'Pipeline failed — sending alert.'
+        }
+        unstable {
+            echo 'Marked unstable (e.g. test failures but build passed).'
+        }
+    }
+}
+
+// ============================================
+// 15. REUSABLE FUNCTION (defined outside pipeline block)
+// ============================================
+def notifyTeam(String message) {
+    echo "NOTIFY: ${message}"
+    // could call sh 'curl ... slack webhook ...' here
+}
