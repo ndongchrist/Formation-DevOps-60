@@ -1,5 +1,5 @@
 variable "db_name" {
-  type = string
+  type        = string
   description = "value"
-  default = "mydb"
+  default     = "mydb"
 }

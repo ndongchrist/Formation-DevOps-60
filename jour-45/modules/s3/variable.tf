@@ -1,5 +1,5 @@
 variable "bucket_name" {
-  type = string
+  type        = string
   description = "value"
-  default = "devops-goldenbrain-web-app-data"
+  default     = "devops-goldenbrain-web-app-data"
 }

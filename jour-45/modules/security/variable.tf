@@ -1,11 +1,11 @@
 variable "security_group_type" {
-  type = string
+  type        = string
   description = "value"
-  default = "ingress"
+  default     = "ingress"
 }
 
 variable "load_balancer_security_group" {
-  type = string
-  default = "alb-security-group"
+  type        = string
+  default     = "alb-security-group"
   description = "value"
 }

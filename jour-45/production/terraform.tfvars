@@ -1,2 +1,2 @@
-db_name = "my_test"
+db_name     = "my_test"
 domain_name = "goldenbraintek.com"

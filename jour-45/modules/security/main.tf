@@ -2,7 +2,7 @@ resource "aws_security_group" "instances" {
   name = "instance-security-group"
 }
 
-resource "aws_security_group_rule" "allow_http_inbound" {  # internet ------> ELB  // ELB ------> internet
+resource "aws_security_group_rule" "allow_http_inbound" { # internet ------> ELB  // ELB ------> internet
   type              = var.security_group_type
   security_group_id = aws_security_group.instances.id
 

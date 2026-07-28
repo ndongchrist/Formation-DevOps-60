@@ -1,5 +1,5 @@
 resource "aws_db_instance" "db_instance" {
-  allocated_storage = 20
+  allocated_storage          = 20
   auto_minor_version_upgrade = true
   storage_type               = "standard"
   engine                     = "postgres"
