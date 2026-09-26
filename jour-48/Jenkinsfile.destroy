@@ -1,0 +1,92 @@
+pipeline {
+  agent any
+
+  environment {
+    AWS_DEFAULT_REGION = 'eu-west-3'
+    PROJECT_DIR        = 'jour-48'
+  }
+
+  parameters {
+    string(
+      name: 'CONFIRMATION',
+      defaultValue: '',
+      description: 'Tape DESTROY pour confirmer la suppression du site (S3 + CloudFront).'
+    )
+  }
+
+  options {
+    disableConcurrentBuilds()   // never run two destroys at the same time
+  }
+
+  stages {
+    stage('Vérification') {
+      steps {
+        script {
+          if (params.CONFIRMATION != 'DESTROY') {
+            error('Confirmation manquante : relance avec "Build with Parameters" et tape DESTROY.')
+          }
+        }
+      }
+    }
+
+    stage('Checkout') {
+      steps { checkout scm }
+    }
+
+    stage('Terraform Init') {
+      steps {
+        dir("${env.PROJECT_DIR}/infra") {
+          sh 'terraform init -input=false -reconfigure'
+        }
+      }
+    }
+
+    stage('Plan de destruction') {
+      steps {
+        dir("${env.PROJECT_DIR}/infra") {
+          // Shows the list of resources that will be deleted
+          sh 'terraform plan -destroy -out=destroy.tfplan -input=false'
+        }
+      }
+    }
+
+    stage('Validation') {
+      steps {
+        input message: 'Supprimer définitivement ces ressources ?', ok: 'Oui, supprimer'
+      }
+    }
+
+    stage('Vider le bucket') {
+      steps {
+        dir("${env.PROJECT_DIR}") {
+          script {
+            def bucket = sh(
+              script: 'terraform -chdir=infra output -raw bucket_name 2>/dev/null || true',
+              returnStdout: true
+            ).trim()
+
+            if (bucket) {
+              sh "aws s3 rm s3://${bucket} --recursive"
+            } else {
+              echo 'Aucun bucket trouvé dans le state, rien à vider.'
+            }
+          }
+        }
+      }
+    }
+
+    stage('Terraform Destroy') {
+      steps {
+        dir("${env.PROJECT_DIR}/infra") {
+          sh 'terraform apply -input=false destroy.tfplan'
+        }
+      }
+    }
+  }
+
+  post {
+    success { echo 'Infrastructure du site supprimée.' }
+    failure { echo 'La destruction a échoué : regarde le stage en rouge.' }
+    aborted { echo 'Destruction annulée, rien n’a été supprimé.' }
+  }
+}
