@@ -1,0 +1,54 @@
+pipeline {
+  agent any
+
+  environment {
+    AWS_ACCESS_KEY_ID     = credentials('aws-access-key-id')
+    AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
+    AWS_DEFAULT_REGION    = 'eu-west-3'
+  }
+
+  stages {
+    stage('Checkout') {
+      steps { checkout scm }
+    }
+
+    stage('Build React') {
+      steps {
+        dir('app') {
+          sh 'npm ci'
+          sh 'npm run build'
+        }
+      }
+    }
+
+    stage('Terraform Plan') {
+      steps {
+        dir('infra') {
+          sh 'terraform init -input=false'
+          sh 'terraform plan -out=tfplan -input=false'
+        }
+      }
+    }
+
+    stage('Validation') {
+      steps { input message: 'Appliquer les changements Terraform ?' }
+    }
+
+    stage('Terraform Apply') {
+      steps {
+        dir('infra') { sh 'terraform apply -input=false tfplan' }
+      }
+    }
+
+    stage('Déploiement sur S3') {
+      steps {
+        script {
+          def bucket = sh(script: 'terraform -chdir=infra output -raw bucket_name', returnStdout: true).trim()
+          def distId = sh(script: 'terraform -chdir=infra output -raw distribution_id', returnStdout: true).trim()
+          sh "aws s3 sync app/dist s3://${bucket} --delete"
+          sh "aws cloudfront create-invalidation --distribution-id ${distId} --paths '/*'"
+        }
+      }
+    }
+  }
+}
