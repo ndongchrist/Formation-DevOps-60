@@ -46,7 +46,7 @@ pipeline {
     stage('Terraform Plan') {
       steps {
         dir("${env.PROJECT_DIR}/infra") {
-          sh 'terraform init -input=false'
+          sh 'terraform init -input=false -reconfigure'
           sh 'terraform plan -out=tfplan -input=false'
         }
       }

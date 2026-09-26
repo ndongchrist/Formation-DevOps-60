@@ -5,7 +5,7 @@ terraform {
   backend "s3" {
     bucket       = "devops-goldenbrain-tf-state"
     key          = "react-app/terraform.tfstate"
-    region       = "eu-west-3"
+    region       = "us-east-1"
     use_lockfile = true
   }
 }
