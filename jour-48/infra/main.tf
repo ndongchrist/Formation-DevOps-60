@@ -28,6 +28,13 @@ resource "aws_s3_bucket_public_access_block" "site" {
   restrict_public_buckets = false
 }
 
+resource "aws_s3_bucket_website_configuration" "site" {
+  bucket = aws_s3_bucket.site.id
+
+  index_document { suffix = "index.html" }
+  error_document { key = "index.html" }
+}
+
 # resource "aws_cloudfront_origin_access_control" "oac" {
 #   name                              = "${var.bucket_name}-oac"
 #   origin_access_control_origin_type = "s3"
