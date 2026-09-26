@@ -81,7 +81,7 @@ export default function App() {
     <div className="page">
       <main className="sheet">
         <header>
-          <h1>Mes tâches</h1>
+          <h1>My DevOps Tasks</h1>
           <p className="count" aria-live="polite">
             {tasks.length === 0
               ? 'Commence par ajouter une tâche.'

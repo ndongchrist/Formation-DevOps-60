@@ -7,7 +7,7 @@ beforeEach(() => {
   localStorage.clear()
 })
 
-describe('Mes tâches', () => {
+describe('My DevOps Tasks', () => {
   it('affiche un message quand la liste est vide', () => {
     render(<App />)
     expect(screen.getByText(/Aucune tâche pour l’instant/)).toBeInTheDocument()
