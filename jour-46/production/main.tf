@@ -42,7 +42,7 @@ data "aws_vpc" "default_vpc" {
 }
 
 data "aws_subnet_ids" "default_subnet" {
-  vpc_id                 = data.aws_vpc.default_vpc.id
+  vpc_id = data.aws_vpc.default_vpc.id
 }
 
 #Security Groups
