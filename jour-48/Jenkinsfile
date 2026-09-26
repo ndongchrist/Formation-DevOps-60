@@ -2,9 +2,7 @@ pipeline {
   agent any
 
   environment {
-    AWS_ACCESS_KEY_ID     = credentials('aws-access-key-id')
-    AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
-    AWS_DEFAULT_REGION    = 'eu-west-3'
+    AWS_DEFAULT_REGION = 'eu-west-3'
   }
 
   stages {
@@ -12,11 +10,37 @@ pipeline {
       steps { checkout scm }
     }
 
+    stage('Installation') {
+      steps {
+        dir('app') { sh 'npm ci' }
+      }
+    }
+
+    stage('Tests') {
+      steps {
+        // If a test fails, the pipeline stops here: nothing gets deployed.
+        dir('app') {
+          sh 'npx vitest run --reporter=default --reporter=junit --outputFile.junit=test-results.xml'
+        }
+      }
+      post {
+        always {
+          // Shows the results in the "Tests" tab of the build in Jenkins
+          junit allowEmptyResults: true, testResults: 'app/test-results.xml'
+        }
+      }
+    }
+
     stage('Build React') {
       steps {
         dir('app') {
-          sh 'npm ci'
-          sh 'npm run build'
+          // Injects Jenkins info into the app (read by src/buildInfo.js)
+          sh '''
+            export VITE_BUILD_NUMBER="$BUILD_NUMBER"
+            export VITE_GIT_COMMIT="$(echo "$GIT_COMMIT" | cut -c1-7)"
+            export VITE_BUILD_DATE="$(date '+%d/%m/%Y %H:%M')"
+            npm run build
+          '''
         }
       }
     }
@@ -50,5 +74,10 @@ pipeline {
         }
       }
     }
+  }
+
+  post {
+    success { echo 'Déploiement réussi !' }
+    failure { echo 'Le pipeline a échoué : regarde le stage en rouge.' }
   }
 }

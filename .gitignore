@@ -2,3 +2,20 @@ to-ignore.txt
 .terraform/
 .terraform.lo*
 terraform.tfs*
+*.pem
+
+# Node / React
+node_modules/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+tfplan
+
+# Secrets
+*.pem
+.env
+
+# System
+.DS_Store
