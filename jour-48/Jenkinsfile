@@ -3,6 +3,7 @@ pipeline {
 
   environment {
     AWS_DEFAULT_REGION = 'eu-west-3'
+    PROJECT_DIR        = 'jour-48'   // the folder of the project in the repo
   }
 
   stages {
@@ -12,29 +13,26 @@ pipeline {
 
     stage('Installation') {
       steps {
-        dir('app') { sh 'npm ci' }
+        dir("${env.PROJECT_DIR}/app") { sh 'npm ci' }
       }
     }
 
     stage('Tests') {
       steps {
-        // If a test fails, the pipeline stops here: nothing gets deployed.
-        dir('app') {
+        dir("${env.PROJECT_DIR}/app") {
           sh 'npx vitest run --reporter=default --reporter=junit --outputFile.junit=test-results.xml'
         }
       }
       post {
         always {
-          // Shows the results in the "Tests" tab of the build in Jenkins
-          junit allowEmptyResults: true, testResults: 'app/test-results.xml'
+          junit allowEmptyResults: true, testResults: "${env.PROJECT_DIR}/app/test-results.xml"
         }
       }
     }
 
     stage('Build React') {
       steps {
-        dir('app') {
-          // Injects Jenkins info into the app (read by src/buildInfo.js)
+        dir("${env.PROJECT_DIR}/app") {
           sh '''
             export VITE_BUILD_NUMBER="$BUILD_NUMBER"
             export VITE_GIT_COMMIT="$(echo "$GIT_COMMIT" | cut -c1-7)"
@@ -47,7 +45,7 @@ pipeline {
 
     stage('Terraform Plan') {
       steps {
-        dir('infra') {
+        dir("${env.PROJECT_DIR}/infra") {
           sh 'terraform init -input=false'
           sh 'terraform plan -out=tfplan -input=false'
         }
@@ -60,17 +58,19 @@ pipeline {
 
     stage('Terraform Apply') {
       steps {
-        dir('infra') { sh 'terraform apply -input=false tfplan' }
+        dir("${env.PROJECT_DIR}/infra") { sh 'terraform apply -input=false tfplan' }
       }
     }
 
     stage('Déploiement sur S3') {
       steps {
-        script {
-          def bucket = sh(script: 'terraform -chdir=infra output -raw bucket_name', returnStdout: true).trim()
-          def distId = sh(script: 'terraform -chdir=infra output -raw distribution_id', returnStdout: true).trim()
-          sh "aws s3 sync app/dist s3://${bucket} --delete"
-          sh "aws cloudfront create-invalidation --distribution-id ${distId} --paths '/*'"
+        dir("${env.PROJECT_DIR}") {
+          script {
+            def bucket = sh(script: 'terraform -chdir=infra output -raw bucket_name', returnStdout: true).trim()
+            def distId = sh(script: 'terraform -chdir=infra output -raw distribution_id', returnStdout: true).trim()
+            sh "aws s3 sync app/dist s3://${bucket} --delete"
+            sh "aws cloudfront create-invalidation --distribution-id ${distId} --paths '/*'"
+          }
         }
       }
     }
