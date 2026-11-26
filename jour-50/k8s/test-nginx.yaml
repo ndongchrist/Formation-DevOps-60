@@ -1,0 +1,36 @@
+# Application de test du jour 50 : prouver que le cluster fonctionne.
+# L'application Django sera déployée au jour 52.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hello
+  template:
+    metadata:
+      labels:
+        app: hello
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.27-alpine
+          ports:
+            - containerPort: 80
+          resources:
+            requests: { cpu: 50m, memory: 64Mi }
+            limits: { cpu: 200m, memory: 128Mi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello
+spec:
+  type: LoadBalancer # AWS crée un load balancer public dans les sous-réseaux tagués
+  selector:
+    app: hello
+  ports:
+    - port: 80
+      targetPort: 80
