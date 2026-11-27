@@ -1,0 +1,34 @@
+name: Test connexion AWS (OIDC)
+
+on:
+  push:
+    branches: ["**"]     # toutes les branches : on verra que seule main est autorisée
+  workflow_dispatch:      # bouton "Run workflow" dans l'onglet Actions
+
+permissions:
+  id-token: write   # OBLIGATOIRE : autorise le workflow à demander un jeton OIDC à GitHub
+  contents: read
+
+jobs:
+  test-aws:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1. Voir la "carte d'identité" que GitHub délivre
+        run: |
+          TOKEN=$(curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | jq -r '.value')
+          PAYLOAD=$(echo "$TOKEN" | cut -d '.' -f2 | tr '_-' '/+')
+          while [ $(( ${#PAYLOAD} % 4 )) -ne 0 ]; do PAYLOAD="${PAYLOAD}="; done
+          echo "$PAYLOAD" | base64 -d | jq '{iss, aud, sub, repository, ref, actor}'
+
+      - name: 2. Se connecter à AWS sans aucune clé
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: eu-west-3
+
+      - name: 3. Qui suis-je dans AWS ?
+        run: aws sts get-caller-identity
+
+      - name: "4. Prouver l'accès : lister les buckets S3"
+        run: aws s3 ls
